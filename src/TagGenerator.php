@@ -9,7 +9,8 @@ use IteratorAggregate;
 use Traversable;
 
 /**
- * @author merloxx <merloxx@zaphyr.org>
+ * @author   merloxx <merloxx@zaphyr.org>
+ * @internal This class is not part of the public API and may change at any time!
  */
 class TagGenerator implements Countable, IteratorAggregate
 {

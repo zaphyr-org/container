@@ -8,7 +8,6 @@ use Closure;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionNamedType;
 use ReflectionParameter;
 use Zaphyr\Container\Exceptions\ContainerException;
 use Zaphyr\Container\Exceptions\NotFoundException;
@@ -136,7 +135,7 @@ class Container implements PsrContainerInterface
         $results = [];
 
         foreach ($dependencies as $dependency) {
-            $result = $this->getParameterClassName($dependency) === null
+            $result = DependencyResolver::getParameterClassName($dependency) === null
                 ? $this->resolvePrimitive($dependency)
                 : $this->resolveClass($dependency);
 
@@ -175,33 +174,12 @@ class Container implements PsrContainerInterface
             );
         }
 
-        return $this->resolve($this->getParameterClassName($parameter));
+        return $this->resolve(DependencyResolver::getParameterClassName($parameter));
     }
 
-    protected function getParameterClassName(ReflectionParameter $parameter): string|null
+    public function call($callable, array $parameters = []): mixed
     {
-        $type = $parameter->getType();
-
-        if (!$type instanceof ReflectionNamedType || $type->isBuiltin()) {
-            return null;
-        }
-
-        $name = $type->getName();
-        $class = $parameter->getDeclaringClass();
-
-        if ($class !== null) {
-            if ($name === 'self') {
-                return $class->getName();
-            }
-
-            $parent = $class->getParentClass();
-
-            if ($name === 'parent' && $parent) {
-                return $parent->getName();
-            }
-        }
-
-        return $name;
+        return DependencyResolver::call($this, $callable, $parameters);
     }
 
     public function tag($aliases, array $tags): void
