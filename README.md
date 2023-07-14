@@ -42,7 +42,7 @@ Please see [CONTRIBUTING](https://zaphyr.org/contributions) for details.
 
 ## Code of Conduct
 
-Please see [CODE OF CONDUCT](https://zaphyr.org/contributions#content-code-of-conduct) for details.
+Please see [CODE OF CONDUCT](https://zaphyr.org/contributions#code-of-conduct) for details.
 
 ## License
 

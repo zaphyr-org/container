@@ -1,0 +1,21 @@
+parameters:
+    phpVersion: 80100
+    level: 8
+    paths:
+        - src
+    parallel:
+        maximumNumberOfProcesses: 1
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        -
+            message: '%Template type T of method Zaphyr\\Container\\Container::(get\(\)) is not referenced in a parameter.%'
+            path: src/Container.php
+        -
+            message: '%Template type T of method Zaphyr\\Container\\Contracts\\ContainerInterface::(resolve\(\)) is not referenced in a parameter.%'
+            path: src/Contracts/ContainerInterface.php
+        -
+            message: '%Cannot call method getName\(\) on ReflectionClass\|null.%'
+            path: src/Utils/Reflector.php
+        -
+            message: '%Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given.%'
+            path: src/Utils/Reflector.php

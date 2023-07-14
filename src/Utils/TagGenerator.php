@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zaphyr\Container;
+namespace Zaphyr\Container\Utils;
 
 use Countable;
 use IteratorAggregate;
@@ -14,27 +14,41 @@ use Traversable;
  */
 class TagGenerator implements Countable, IteratorAggregate
 {
+    /**
+     * @var callable
+     */
     protected $generator;
 
+    /**
+     * @var callable|int
+     */
     protected $count;
 
+    /**
+     * @param callable     $generator
+     * @param callable|int $count
+     */
     public function __construct(callable $generator, callable|int $count)
     {
         $this->count = $count;
         $this->generator = $generator;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getIterator(): Traversable
     {
         return ($this->generator)();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function count(): int
     {
-        if (is_callable($count = $this->count)) {
-            $this->count = $count();
-        }
+        $count = $this->count;
 
-        return $this->count;
+        return is_callable($count) ? $count() : $count;
     }
 }
