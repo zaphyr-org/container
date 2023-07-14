@@ -10,6 +10,8 @@ use stdClass;
 use Zaphyr\Container\Container;
 use Zaphyr\ContainerTests\TestAssets\Bar;
 use Zaphyr\ContainerTests\TestAssets\BarInterface;
+use Zaphyr\ContainerTests\TestAssets\Call;
+use Zaphyr\ContainerTests\TestAssets\CallInvoke;
 use Zaphyr\ContainerTests\TestAssets\DefaultValues;
 use Zaphyr\ContainerTests\TestAssets\Dependency;
 use Zaphyr\ContainerTests\TestAssets\ExtendLazy;
@@ -22,6 +24,8 @@ use Zaphyr\ContainerTests\TestAssets\TagTwo;
 use Zaphyr\ContainerTests\TestAssets\UnresolvableDependency;
 use Zaphyr\ContainerTests\TestAssets\VariadicObjects;
 use Zaphyr\ContainerTests\TestAssets\VariadicPrimitive;
+
+use function Zaphyr\ContainerTests\TestAssets\callFunction;
 
 class ContainerTest extends TestCase
 {
@@ -240,6 +244,149 @@ class ContainerTest extends TestCase
 
         self::assertFalse($this->container->isShared(Foo::class));
         self::assertTrue($this->container->isShared(Bar::class));
+    }
+
+    /* -------------------------------------------------
+     * CALL
+     * -------------------------------------------------
+     */
+
+    public function testCallClassName(): void
+    {
+        $inject = $this->container->call([Call::class, 'inject']);
+
+        self::assertInstanceOf(Foo::class, $inject[0]);
+        self::assertEquals('foo', $inject[1]);
+    }
+
+    public function testCallObject(): void
+    {
+        $inject = $this->container->call([new Call(), 'inject']);
+
+        self::assertInstanceOf(Foo::class, $inject[0]);
+        self::assertEquals('foo', $inject[1]);
+    }
+
+    public function testCallClosure(): void
+    {
+        $foo = $this->container->call(fn(Foo $foo) => $foo);
+
+        self::assertInstanceOf(Foo::class, $foo);
+        self::assertInstanceOf(Bar::class, $foo->bar);
+    }
+
+    public function testCallStaticClassStringMethodName(): void
+    {
+        $inject = $this->container->call(Call::class . '::inject');
+
+        self::assertInstanceOf(Foo::class, $inject[0]);
+        self::assertEquals('foo', $inject[1]);
+    }
+
+    public function testCallStaticMethod(): void
+    {
+        $inject = $this->container->call([Call::class, 'injectStatic']);
+
+        self::assertInstanceOf(Foo::class, $inject[0]);
+        self::assertEquals('foo', $inject[1]);
+    }
+
+    public function testCallParameters(): void
+    {
+        $injectParams = $this->container->call([new Call(), 'injectParams'], ['foo', 'bar']);
+
+        self::assertEquals(['foo', 'bar'], $injectParams);
+    }
+
+    public function testCallInvoke(): void
+    {
+        $invoke = $this->container->call(CallInvoke::class);
+
+        self::assertInstanceOf(Foo::class, $invoke[0]);
+        self::assertEquals('foo', $invoke[1]);
+        self::assertInstanceOf(Call::class, $invoke[2]);
+    }
+
+    public function testCallGlobalMethod(): void
+    {
+        $inject = $this->container->call('Zaphyr\ContainerTests\TestAssets\callFunction');
+
+        self::assertInstanceOf(Foo::class, $inject[0]);
+        self::assertEquals('foo', $inject[1]);
+    }
+
+    public function testCallDependencies(): void
+    {
+        $result = $this->container->call(function (stdClass $foo, $bar = []) {
+            return [$foo, $bar];
+        });
+
+        self::assertInstanceOf(stdClass::class, $result[0]);
+        self::assertEquals([], $result[1]);
+
+        $result = $this->container->call(function (stdClass $foo, $bar = []) {
+            return [$foo, $bar];
+        }, ['bar' => 'bar']);
+
+        self::assertInstanceOf(stdClass::class, $result[0]);
+        self::assertEquals('bar', $result[1]);
+
+        $bar = new Bar();
+        $result = $this->container->call(function (stdClass $foo, Bar $bar) {
+            return [$foo, $bar];
+        }, [Bar::class => $bar]);
+
+        self::assertInstanceOf(stdClass::class, $result[0]);
+        self::assertSame($bar, $result[1]);
+    }
+
+    public function testCallVariadicDependency(): void
+    {
+        $barOne = new Bar();
+        $barTwo = new Bar();
+
+        $this->container->bind(Bar::class, function () use ($barOne, $barTwo) {
+            return [$barOne, $barTwo];
+        });
+
+        $result = $this->container->call(function (stdClass $foo, Bar ...$bar) {
+            return func_get_args();
+        });
+
+        self::assertInstanceOf(stdClass::class, $result[0]);
+        self::assertInstanceOf(Bar::class, $result[1]);
+        self::assertSame($barOne, $result[1]);
+        self::assertSame($barTwo, $result[2]);
+    }
+
+    public function testCallThrowsExceptionWhenClassNotExists(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->call('Foo\Bar\Baz::inject');
+    }
+
+    public function testCallThrowsExceptionOnUnresolvable(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->call([Call::class, 'injectUnresolvable']);
+    }
+
+    public function testCallThrowsExceptionOnUnnamedParameters(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->call([Call::class, 'injectUnresolvable'], ['foo', 'bar']);
+    }
+
+    public function testCallThrowsExceptionOnMissingParameters(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->call(function ($foo, $bar = 'default') {
+            return $foo;
+        });
     }
 
     /* -------------------------------------------------
