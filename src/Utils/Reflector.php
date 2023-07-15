@@ -30,11 +30,11 @@ class Reflector
      */
     public static function build(Container $container, string $concrete): mixed
     {
-        try {
-            $reflector = new ReflectionClass($concrete);
-        } catch (ReflectionException $exception) {
-            throw new ContainerException('Could not resolve "' . $concrete . '"', 0, $exception);
+        if (!class_exists($concrete)) {
+            throw new ContainerException('Could not resolve "' . $concrete . '"');
         }
+
+        $reflector = new ReflectionClass($concrete);
 
         if (!$reflector->isInstantiable()) {
             throw new ContainerException('"' . $concrete . '" is not instantiable');

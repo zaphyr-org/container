@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Zaphyr\Container;
 
 use Closure;
+use Zaphyr\Container\Contracts\AggregateServiceProviderInterface;
 use Zaphyr\Container\Contracts\ContainerInterface;
+use Zaphyr\Container\Contracts\ServiceProviderInterface;
 use Zaphyr\Container\Exceptions\ContainerException;
 use Zaphyr\Container\Exceptions\NotFoundException;
 use Zaphyr\Container\Utils\Reflector;
@@ -37,15 +39,31 @@ class Container implements ContainerInterface
     protected array $extends = [];
 
     /**
+     * @var AggregateServiceProviderInterface
+     */
+    protected AggregateServiceProviderInterface $providers;
+
+    /**
+     * @param AggregateServiceProviderInterface|null $providers
+     *
+     * @throws ContainerException
+     */
+    public function __construct(AggregateServiceProviderInterface|null $providers = null)
+    {
+        $this->providers = $providers ?? new AggregateServiceProvider();
+        $this->providers->setContainer($this);
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): void
+    public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): static
     {
-        if ($concrete === null) {
-            $concrete = $alias;
-        }
+        $concrete ??= $alias;
 
         $this->bindings[$alias] = compact('concrete', 'shared');
+
+        return $this;
     }
 
     /**
@@ -55,6 +73,10 @@ class Container implements ContainerInterface
     {
         if (isset($this->instances[$alias])) {
             return $this->instances[$alias];
+        }
+
+        if ($this->providers->provides($alias)) {
+            $this->providers->register($alias);
         }
 
         $concrete = $this->getConcrete($alias);
@@ -103,7 +125,7 @@ class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
-        return isset($this->bindings[$id]);
+        return isset($this->bindings[$id]) || $this->providers->provides($id);
     }
 
     /**
@@ -165,7 +187,7 @@ class Container implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function tag(array|string $aliases, array $tags): void
+    public function tag(array|string $aliases, array $tags): static
     {
         foreach ($tags as $tag) {
             if (!isset($this->tags[$tag])) {
@@ -176,6 +198,8 @@ class Container implements ContainerInterface
                 $this->tags[$tag][] = $alias;
             }
         }
+
+        return $this;
     }
 
     /**
@@ -197,12 +221,24 @@ class Container implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function extend(string $alias, Closure $closure): void
+    public function extend(string $alias, Closure $closure): static
     {
         if (isset($this->instances[$alias])) {
             $this->instances[$alias] = $closure($this->instances[$alias], $this);
         } else {
             $this->extends[$alias][] = $closure;
         }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerServiceProvider(ServiceProviderInterface $provider): static
+    {
+        $this->providers->add($provider);
+
+        return $this;
     }
 }

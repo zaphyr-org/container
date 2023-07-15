@@ -18,14 +18,13 @@ use Zaphyr\ContainerTests\TestAssets\ExtendLazy;
 use Zaphyr\ContainerTests\TestAssets\Foo;
 use Zaphyr\ContainerTests\TestAssets\NestedDependency;
 use Zaphyr\ContainerTests\TestAssets\ProtectedConstructor;
+use Zaphyr\ContainerTests\TestAssets\ServiceProvider;
 use Zaphyr\ContainerTests\TestAssets\TagAggregate;
 use Zaphyr\ContainerTests\TestAssets\TagOne;
 use Zaphyr\ContainerTests\TestAssets\TagTwo;
 use Zaphyr\ContainerTests\TestAssets\UnresolvableDependency;
 use Zaphyr\ContainerTests\TestAssets\VariadicObjects;
 use Zaphyr\ContainerTests\TestAssets\VariadicPrimitive;
-
-use function Zaphyr\ContainerTests\TestAssets\callFunction;
 
 class ContainerTest extends TestCase
 {
@@ -571,5 +570,39 @@ class ContainerTest extends TestCase
         $resultTwo = $this->container->resolve('foo');
 
         self::assertSame($resultOne->foo, $resultTwo->foo);
+    }
+
+    /* -------------------------------------------------
+     * SERVICE PROVIDER
+     * -------------------------------------------------
+     */
+
+    public function testServiceProviderRegister(): void
+    {
+        $this->container->registerServiceProvider(new ServiceProvider());
+
+        self::assertTrue($this->container->has(Foo::class));
+        self::assertInstanceOf(Foo::class, $this->container->get(Foo::class));
+    }
+
+    public function testServiceProviderThrowsExceptionWhenNotResolvable(): void
+    {
+        $this->container->registerServiceProvider(new ServiceProvider());
+        self::assertTrue($this->container->has('liar'));
+
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->get('liar');
+    }
+
+    public function testExtendServiceProviderInstance(): void
+    {
+        $this->container->registerServiceProvider(new ServiceProvider());
+
+        self::assertSame('foo', $this->container->get('value'));
+
+        $this->container->extend('value', fn($foo, Container $container) => $foo . 'Bar');
+
+        self::assertSame('fooBar', $this->container->get('value'));
     }
 }

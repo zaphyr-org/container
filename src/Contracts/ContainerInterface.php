@@ -18,9 +18,9 @@ interface ContainerInterface extends PsrContainerInterface
      * @param Closure|string|null $concrete
      * @param bool                $shared
      *
-     * @return void
+     * @return $this
      */
-    public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): void;
+    public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): static;
 
     /**
      * @template T
@@ -52,9 +52,9 @@ interface ContainerInterface extends PsrContainerInterface
      * @param string[]|string $aliases
      * @param string[]        $tags
      *
-     * @return void
+     * @return $this
      */
-    public function tag(array|string $aliases, array $tags): void;
+    public function tag(array|string $aliases, array $tags): static;
 
     /**
      * @param string $tag
@@ -68,7 +68,15 @@ interface ContainerInterface extends PsrContainerInterface
      * @param string  $alias
      * @param Closure $closure
      *
-     * @return void
+     * @return $this
      */
-    public function extend(string $alias, Closure $closure): void;
+    public function extend(string $alias, Closure $closure): static;
+
+    /**
+     * @param ServiceProviderInterface $provider
+     *
+     * @throws ContainerException
+     * @return $this
+     */
+    public function registerServiceProvider(ServiceProviderInterface $provider): static;
 }

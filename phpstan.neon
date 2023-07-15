@@ -16,6 +16,3 @@ parameters:
         -
             message: '%Cannot call method getName\(\) on ReflectionClass\|null.%'
             path: src/Utils/Reflector.php
-        -
-            message: '%Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given.%'
-            path: src/Utils/Reflector.php
