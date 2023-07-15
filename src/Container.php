@@ -67,9 +67,36 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @template T
+     *
+     * @param class-string<T>|string $id
+     *
      * {@inheritdoc}
      */
-    public function resolve(string $alias): mixed
+    public function get(string $id): mixed
+    {
+        try {
+            return $this->resolve($id);
+        } catch (ContainerException $exception) {
+            if ($this->has($id)) {
+                throw $exception;
+            }
+
+            throw new NotFoundException(
+                '"' . $id . '" is not being managed by the container',
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @param string $alias
+     *
+     * @throws ContainerException
+     * @return mixed
+     */
+    protected function resolve(string $alias): mixed
     {
         if (isset($this->instances[$alias])) {
             return $this->instances[$alias];
@@ -94,30 +121,6 @@ class Container implements ContainerInterface
         }
 
         return $object;
-    }
-
-    /**
-     * @template T
-     *
-     * @param class-string<T>|string $id
-     *
-     * {@inheritdoc}
-     */
-    public function get(string $id): mixed
-    {
-        try {
-            return $this->resolve($id);
-        } catch (ContainerException $exception) {
-            if ($this->has($id)) {
-                throw $exception;
-            }
-
-            throw new NotFoundException(
-                '"' . $id . '" is not being managed by the container',
-                $exception->getCode(),
-                $exception
-            );
-        }
     }
 
     /**

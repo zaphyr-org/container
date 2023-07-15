@@ -122,7 +122,7 @@ class Reflector
             );
         }
 
-        return $container->resolve($className);
+        return $container->get($className);
     }
 
     /**
@@ -166,7 +166,7 @@ class Reflector
         try {
             if (is_array($callable)) {
                 if (is_string($callable[0])) {
-                    $callable[0] = $container->resolve($callable[0]);
+                    $callable[0] = $container->get($callable[0]);
                 }
 
                 $reflection = new ReflectionMethod($callable[0], $callable[1]);
@@ -213,14 +213,14 @@ class Reflector
 
                     unset($parameters[$className]);
                 } elseif ($parameter->isVariadic()) {
-                    $variadicDependencies = $container->resolve($className);
+                    $variadicDependencies = $container->get($className);
 
                     $dependencies = array_merge(
                         $dependencies,
                         is_array($variadicDependencies) ? $variadicDependencies : [$variadicDependencies]
                     );
                 } else {
-                    $dependencies[] = $container->resolve($className);
+                    $dependencies[] = $container->get($className);
                 }
             } elseif ($parameter->isDefaultValueAvailable()) {
                 $dependencies[] = $parameter->getDefaultValue();

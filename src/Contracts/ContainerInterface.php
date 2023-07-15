@@ -23,16 +23,6 @@ interface ContainerInterface extends PsrContainerInterface
     public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): static;
 
     /**
-     * @template T
-     *
-     * @param class-string<T>|string $alias
-     *
-     * @throws ContainerException
-     * @return mixed
-     */
-    public function resolve(string $alias): mixed;
-
-    /**
      * @param string $alias
      *
      * @return bool

@@ -53,7 +53,7 @@ class ContainerTest extends TestCase
         $this->container->bind(Foo::class);
         $this->container->bind(Bar::class);
 
-        self::assertInstanceOf(Foo::class, $foo = $this->container->resolve(Foo::class));
+        self::assertInstanceOf(Foo::class, $foo = $this->container->get(Foo::class));
         self::assertInstanceOf(Bar::class, $foo->bar);
     }
 
@@ -61,21 +61,21 @@ class ContainerTest extends TestCase
     {
         $this->container->bind(BarInterface::class, Bar::class);
 
-        self::assertInstanceOf(Bar::class, $this->container->resolve(BarInterface::class));
+        self::assertInstanceOf(Bar::class, $this->container->get(BarInterface::class));
     }
 
     public function testBindWithClosureConcrete(): void
     {
         $this->container->bind('foo', fn() => 'Foo');
 
-        self::assertEquals('Foo', $this->container->resolve('foo'));
+        self::assertEquals('Foo', $this->container->get('foo'));
     }
 
     public function testBindContainerIsPassedToClosure(): void
     {
         $this->container->bind('foo', fn(Container $container) => $container);
 
-        self::assertInstanceOf(Container::class, $this->container->resolve('foo'));
+        self::assertInstanceOf(Container::class, $this->container->get('foo'));
     }
 
     public function testBindOverride(): void
@@ -83,15 +83,15 @@ class ContainerTest extends TestCase
         $this->container->bind('foo', fn() => 'Foo');
         $this->container->bind('foo', fn() => 'Bar');
 
-        self::assertEquals('Bar', $this->container->resolve('foo'));
+        self::assertEquals('Bar', $this->container->get('foo'));
     }
 
     public function testBindSharedWithClosure(): void
     {
         $this->container->bind('bar', fn() => new Bar(), true);
 
-        $fooOne = $this->container->resolve('bar');
-        $fooTwo = $this->container->resolve('bar');
+        $fooOne = $this->container->get('bar');
+        $fooTwo = $this->container->get('bar');
 
         self::assertSame($fooOne, $fooTwo);
     }
@@ -100,97 +100,10 @@ class ContainerTest extends TestCase
     {
         $this->container->bind(alias: Bar::class, shared: true);
 
-        $fooOne = $this->container->resolve(Bar::class);
-        $fooTwo = $this->container->resolve(Bar::class);
+        $fooOne = $this->container->get(Bar::class);
+        $fooTwo = $this->container->get(Bar::class);
 
         self::assertSame($fooOne, $fooTwo);
-    }
-
-    /* -------------------------------------------------
-     * RESOLVE
-     * -------------------------------------------------
-     */
-
-    public function testResolveAutoWiring(): void
-    {
-        $foo = $this->container->resolve(Foo::class);
-
-        self::assertInstanceOf(Foo::class, $foo);
-        self::assertInstanceOf(Bar::class, $foo->bar);
-    }
-
-    public function testResolveDependency(): void
-    {
-        $this->container->bind(BarInterface::class, Bar::class);
-
-        $dependency = $this->container->resolve(Dependency::class);
-
-        self::assertInstanceOf(Dependency::class, $dependency);
-        self::assertInstanceOf(Bar::class, $dependency->bar);
-    }
-
-    public function testResolveNestedDependencies(): void
-    {
-        $this->container->bind(BarInterface::class, Bar::class);
-
-        $nestedDependency = $this->container->resolve(NestedDependency::class);
-
-        self::assertInstanceOf(Dependency::class, $nestedDependency->dependency);
-        self::assertInstanceOf(Bar::class, $nestedDependency->dependency->bar);
-    }
-
-    public function testResolveWithDefaultValues(): void
-    {
-        $this->container->bind(Foo::class);
-        $this->container->bind(BarInterface::class, Bar::class);
-
-        $defaultValues = $this->container->resolve(DefaultValues::class);
-
-        self::assertInstanceOf(DefaultValues::class, $defaultValues);
-        self::assertInstanceOf(Foo::class, $defaultValues->foo);
-        self::assertEquals('bar', $defaultValues->value);
-    }
-
-    public function testResolveVariadicPrimitive(): void
-    {
-        $variadicPrimitive = $this->container->resolve(VariadicPrimitive::class);
-
-        $this->assertSame($variadicPrimitive->args, []);
-    }
-
-    public function testResolveThrowsExceptionOnVariadicDependencies(): void
-    {
-        $this->expectException(ContainerExceptionInterface::class);
-
-        $this->container->resolve(VariadicObjects::class);
-    }
-
-    public function testResolveThrowsExceptionOnUnresolvableDependency(): void
-    {
-        $this->expectException(ContainerExceptionInterface::class);
-
-        $this->container->resolve(UnresolvableDependency::class);
-    }
-
-    public function testResolveThrowsExceptionOnUnresolvableInstance(): void
-    {
-        $this->expectException(ContainerExceptionInterface::class);
-
-        $this->container->resolve(BarInterface::class);
-    }
-
-    public function testResolveThrowsExceptionWhenClassNotExists(): void
-    {
-        $this->expectException(ContainerExceptionInterface::class);
-
-        $this->container->resolve('Foo\Bar\Baz');
-    }
-
-    public function testResolveThrowsExceptionWhenConstructorIsProtected(): void
-    {
-        $this->expectException(ContainerExceptionInterface::class);
-
-        $this->container->resolve(ProtectedConstructor::class);
     }
 
     /* -------------------------------------------------
@@ -198,12 +111,68 @@ class ContainerTest extends TestCase
      * -------------------------------------------------
      */
 
-    public function testGet(): void
+    public function testGetAutoWiring(): void
     {
-        self::assertInstanceOf(Foo::class, $this->container->get(Foo::class));
+        $foo = $this->container->get(Foo::class);
+
+        self::assertInstanceOf(Foo::class, $foo);
+        self::assertInstanceOf(Bar::class, $foo->bar);
     }
 
-    public function testGetThrowsExceptionWhenNotResolvable(): void
+    public function testGetDependency(): void
+    {
+        $this->container->bind(BarInterface::class, Bar::class);
+
+        $dependency = $this->container->get(Dependency::class);
+
+        self::assertInstanceOf(Dependency::class, $dependency);
+        self::assertInstanceOf(Bar::class, $dependency->bar);
+    }
+
+    public function testGetNestedDependencies(): void
+    {
+        $this->container->bind(BarInterface::class, Bar::class);
+
+        $nestedDependency = $this->container->get(NestedDependency::class);
+
+        self::assertInstanceOf(Dependency::class, $nestedDependency->dependency);
+        self::assertInstanceOf(Bar::class, $nestedDependency->dependency->bar);
+    }
+
+    public function testGetWithDefaultValues(): void
+    {
+        $this->container->bind(Foo::class);
+        $this->container->bind(BarInterface::class, Bar::class);
+
+        $defaultValues = $this->container->get(DefaultValues::class);
+
+        self::assertInstanceOf(DefaultValues::class, $defaultValues);
+        self::assertInstanceOf(Foo::class, $defaultValues->foo);
+        self::assertEquals('bar', $defaultValues->value);
+    }
+
+    public function testGetVariadicPrimitive(): void
+    {
+        $variadicPrimitive = $this->container->get(VariadicPrimitive::class);
+
+        $this->assertSame($variadicPrimitive->args, []);
+    }
+
+    public function testGetThrowsExceptionOnVariadicDependencies(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->get(VariadicObjects::class);
+    }
+
+    public function testGetThrowsExceptionOnUnresolvableDependency(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->get(UnresolvableDependency::class);
+    }
+
+    public function testGetThrowsExceptionOnUnresolvableInstance(): void
     {
         $this->expectException(ContainerExceptionInterface::class);
 
@@ -214,8 +183,14 @@ class ContainerTest extends TestCase
     {
         $this->expectException(ContainerExceptionInterface::class);
 
-        $this->container->bind('foo', 'Foo\Bar\Baz');
-        $this->container->get('foo');
+        $this->container->get('Foo\Bar\Baz');
+    }
+
+    public function testGetThrowsExceptionWhenConstructorIsProtected(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->get(ProtectedConstructor::class);
     }
 
     /* -------------------------------------------------
@@ -427,7 +402,7 @@ class ContainerTest extends TestCase
             return new TagAggregate(...$container->tagged('tag'));
         });
 
-        $result = $this->container->resolve(TagAggregate::class);
+        $result = $this->container->get(TagAggregate::class);
 
         self::assertCount(2, $result->tags);
         self::assertInstanceOf(TagOne::class, $result->tags[0]);
@@ -494,11 +469,11 @@ class ContainerTest extends TestCase
     {
         $this->container->bind('foo', fn() => 'Foo');
 
-        self::assertEquals('Foo', $this->container->resolve('foo'));
+        self::assertEquals('Foo', $this->container->get('foo'));
 
         $this->container->extend('foo', fn($foo, Container $container) => $foo . 'Bar');
 
-        self::assertSame('FooBar', $this->container->resolve('foo'));
+        self::assertSame('FooBar', $this->container->get('foo'));
     }
 
     public function testExtendSharedBinding(): void
@@ -514,7 +489,7 @@ class ContainerTest extends TestCase
 
         self::assertSame('Bar', $result->bar);
         self::assertEquals('Baz', $result->baz);
-        self::assertSame($result, $this->container->resolve('foo'));
+        self::assertSame($result, $this->container->get('foo'));
     }
 
     public function testExtendMultiple(): void
@@ -523,7 +498,7 @@ class ContainerTest extends TestCase
         $this->container->extend('foo', fn($foo) => $foo . 'Bar');
         $this->container->extend('foo', fn($foo) => $foo . 'Baz');
 
-        self::assertSame('FooBarBaz', $this->container->resolve('foo'));
+        self::assertSame('FooBarBaz', $this->container->get('foo'));
     }
 
     public function testExtendBeforeBind(): void
@@ -531,7 +506,7 @@ class ContainerTest extends TestCase
         $this->container->extend('foo', fn($foo) => $foo . 'Bar');
         $this->container->bind('foo', fn() => 'Foo');
 
-        self::assertEquals('FooBar', $this->container->resolve('foo'));
+        self::assertEquals('FooBar', $this->container->get('foo'));
     }
 
     public function testExtendLazy(): void
@@ -545,7 +520,7 @@ class ContainerTest extends TestCase
 
         self::assertFalse(ExtendLazy::$init);
 
-        $this->container->resolve(ExtendLazy::class);
+        $this->container->get(ExtendLazy::class);
 
         self::assertTrue(ExtendLazy::$init);
     }
@@ -559,7 +534,7 @@ class ContainerTest extends TestCase
             return $object;
         }, true);
 
-        $resultOne = $this->container->resolve('foo');
+        $resultOne = $this->container->get('foo');
 
         $this->container->extend('foo', function ($object) {
             $object->foo = 'foo';
@@ -567,7 +542,7 @@ class ContainerTest extends TestCase
             return $object;
         });
 
-        $resultTwo = $this->container->resolve('foo');
+        $resultTwo = $this->container->get('foo');
 
         self::assertSame($resultOne->foo, $resultTwo->foo);
     }
