@@ -22,7 +22,6 @@ interface AggregateServiceProviderInterface extends ContainerAwareInterface
     /**
      * @param string $provider
      *
-     * @throws ContainerException
      * @return bool
      */
     public function provides(string $provider): bool;
