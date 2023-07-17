@@ -67,6 +67,14 @@ class Container implements ContainerInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function bindSingleton(string $alias, Closure|string|null $concrete = null): static
+    {
+        return $this->bind($alias, $concrete, true);
+    }
+
+    /**
      * @template T
      *
      * @param class-string<T>|string $id

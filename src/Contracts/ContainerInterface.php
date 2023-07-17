@@ -23,6 +23,14 @@ interface ContainerInterface extends PsrContainerInterface
     public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): static;
 
     /**
+     * @param string              $alias
+     * @param Closure|string|null $concrete
+     *
+     * @return $this
+     */
+    public function bindSingleton(string $alias, Closure|string|null $concrete = null): static;
+
+    /**
      * @param string $alias
      *
      * @return bool

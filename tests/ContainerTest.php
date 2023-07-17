@@ -86,9 +86,14 @@ class ContainerTest extends TestCase
         self::assertEquals('Bar', $this->container->get('foo'));
     }
 
-    public function testBindSharedWithClosure(): void
+    /* -------------------------------------------------
+     * BIND SINGLETON
+     * -------------------------------------------------
+     */
+
+    public function testBindSingletonWithClosure(): void
     {
-        $this->container->bind('bar', fn() => new Bar(), true);
+        $this->container->bindSingleton('bar', fn() => new Bar());
 
         $fooOne = $this->container->get('bar');
         $fooTwo = $this->container->get('bar');
@@ -96,9 +101,9 @@ class ContainerTest extends TestCase
         self::assertSame($fooOne, $fooTwo);
     }
 
-    public function testBindSharedWithString(): void
+    public function testBindSingletonWithString(): void
     {
-        $this->container->bind(alias: Bar::class, shared: true);
+        $this->container->bindSingleton(Bar::class);
 
         $fooOne = $this->container->get(Bar::class);
         $fooTwo = $this->container->get(Bar::class);
