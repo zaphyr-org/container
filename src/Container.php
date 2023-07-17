@@ -26,7 +26,7 @@ class Container implements ContainerInterface
     /**
      * @var array<string, mixed>
      */
-    protected array $instances = [];
+    protected array $singletons = [];
 
     /**
      * @var array<string, string[]>
@@ -57,11 +57,11 @@ class Container implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): static
+    public function bind(string $alias, Closure|string|null $concrete = null, bool $singleton = false): static
     {
         $concrete ??= $alias;
 
-        $this->bindings[$alias] = compact('concrete', 'shared');
+        $this->bindings[$alias] = compact('concrete', 'singleton');
 
         return $this;
     }
@@ -106,8 +106,8 @@ class Container implements ContainerInterface
      */
     protected function resolve(string $alias): mixed
     {
-        if (isset($this->instances[$alias])) {
-            return $this->instances[$alias];
+        if (isset($this->singletons[$alias])) {
+            return $this->singletons[$alias];
         }
 
         if ($this->providers->provides($alias)) {
@@ -124,8 +124,8 @@ class Container implements ContainerInterface
             }
         }
 
-        if ($this->isShared($alias)) {
-            $this->instances[$alias] = $object;
+        if ($this->isSingleton($alias)) {
+            $this->singletons[$alias] = $object;
         }
 
         return $object;
@@ -142,9 +142,9 @@ class Container implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function isShared(string $alias): bool
+    public function isSingleton(string $alias): bool
     {
-        return isset($this->bindings[$alias]['shared']) && $this->bindings[$alias]['shared'] === true;
+        return isset($this->bindings[$alias]['singleton']) && $this->bindings[$alias]['singleton'] === true;
     }
 
     /**
@@ -234,8 +234,8 @@ class Container implements ContainerInterface
      */
     public function extend(string $alias, Closure $closure): static
     {
-        if (isset($this->instances[$alias])) {
-            $this->instances[$alias] = $closure($this->instances[$alias], $this);
+        if (isset($this->singletons[$alias])) {
+            $this->singletons[$alias] = $closure($this->singletons[$alias], $this);
         } else {
             $this->extends[$alias][] = $closure;
         }

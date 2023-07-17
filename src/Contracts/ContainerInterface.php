@@ -16,11 +16,11 @@ interface ContainerInterface extends PsrContainerInterface
     /**
      * @param string              $alias
      * @param Closure|string|null $concrete
-     * @param bool                $shared
+     * @param bool                $singleton
      *
      * @return $this
      */
-    public function bind(string $alias, Closure|string|null $concrete = null, bool $shared = false): static;
+    public function bind(string $alias, Closure|string|null $concrete = null, bool $singleton = false): static;
 
     /**
      * @param string              $alias
@@ -35,7 +35,7 @@ interface ContainerInterface extends PsrContainerInterface
      *
      * @return bool
      */
-    public function isShared(string $alias): bool;
+    public function isSingleton(string $alias): bool;
 
     /**
      * @param array<mixed>|string|Closure $callable

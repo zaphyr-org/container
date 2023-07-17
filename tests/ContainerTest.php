@@ -212,17 +212,17 @@ class ContainerTest extends TestCase
     }
 
     /* -------------------------------------------------
-     * IS SHARED
+     * IS SINGLETON
      * -------------------------------------------------
      */
 
-    public function testIsShared(): void
+    public function testIsSingleton(): void
     {
         $this->container->bind(Foo::class);
-        $this->container->bind(alias: Bar::class, shared: true);
+        $this->container->bind(alias: Bar::class, singleton: true);
 
-        self::assertFalse($this->container->isShared(Foo::class));
-        self::assertTrue($this->container->isShared(Bar::class));
+        self::assertFalse($this->container->isSingleton(Foo::class));
+        self::assertTrue($this->container->isSingleton(Bar::class));
     }
 
     /* -------------------------------------------------
@@ -481,9 +481,9 @@ class ContainerTest extends TestCase
         self::assertSame('FooBar', $this->container->get('foo'));
     }
 
-    public function testExtendSharedBinding(): void
+    public function testExtendSingletonBinding(): void
     {
-        $this->container->bind('foo', fn() => (object)['bar' => 'Bar'], true);
+        $this->container->bindSingleton('foo', fn() => (object)['bar' => 'Bar']);
         $this->container->extend('foo', static function ($object) {
             $object->baz = 'Baz';
 
@@ -530,7 +530,7 @@ class ContainerTest extends TestCase
         self::assertTrue(ExtendLazy::$init);
     }
 
-    public function testExtendSharedBindingsAfterResolve(): void
+    public function testExtendSingletonBindingsAfterResolve(): void
     {
         $this->container->bind('foo', function () {
             $object = new stdClass();
