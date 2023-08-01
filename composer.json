@@ -31,6 +31,9 @@
         "roave/security-advisories": "dev-latest",
         "squizlabs/php_codesniffer": "^4.0"
     },
+    "provide": {
+        "psr/container-implementation": "^2.0"
+    },
     "autoload": {
         "psr-4": {
             "Zaphyr\\Container\\": "src/"
