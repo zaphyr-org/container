@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Zaphyr\Container;
 
 use Zaphyr\Container\Contracts\AggregateServiceProviderInterface;
-use Zaphyr\Container\Contracts\BootableServiceProvider;
+use Zaphyr\Container\Contracts\BootableServiceProviderInterface;
 use Zaphyr\Container\Contracts\ServiceProviderInterface;
 use Zaphyr\Container\Exceptions\ContainerException;
 
@@ -37,7 +37,7 @@ class AggregateServiceProvider implements AggregateServiceProviderInterface
 
         $provider->setContainer($this->getContainer());
 
-        if ($provider instanceof BootableServiceProvider) {
+        if ($provider instanceof BootableServiceProviderInterface) {
             $provider->boot();
         }
 

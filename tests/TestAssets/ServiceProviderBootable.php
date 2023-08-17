@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Zaphyr\ContainerTests\TestAssets;
 
 use Zaphyr\Container\AbstractServiceProvider;
-use Zaphyr\Container\Contracts\BootableServiceProvider;
+use Zaphyr\Container\Contracts\BootableServiceProviderInterface;
 
-class ServiceProviderBootable extends AbstractServiceProvider implements BootableServiceProvider
+class ServiceProviderBootable extends AbstractServiceProvider implements BootableServiceProviderInterface
 {
     public int $booted = 0;
 
