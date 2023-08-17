@@ -32,6 +32,14 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * @param string $alias
+     * @param object $instance
+     *
+     * @return $this
+     */
+    public function bindInstance(string $alias, object $instance): static;
+
+    /**
+     * @param string $alias
      *
      * @return bool
      */

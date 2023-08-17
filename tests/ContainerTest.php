@@ -112,6 +112,20 @@ class ContainerTest extends TestCase
     }
 
     /* -------------------------------------------------
+     * BIND INSTANCE
+     * -------------------------------------------------
+     */
+
+    public function testBindInstance(): void
+    {
+        $bar = new Bar();
+
+        $this->container->bindInstance(Bar::class, $bar);
+
+        self::assertSame($bar, $this->container->get(Bar::class));
+    }
+
+    /* -------------------------------------------------
      * GET
      * -------------------------------------------------
      */

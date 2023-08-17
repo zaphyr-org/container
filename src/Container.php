@@ -75,6 +75,16 @@ class Container implements ContainerInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function bindInstance(string $alias, object $instance): static
+    {
+        $this->singletons[$alias] = $instance;
+
+        return $this;
+    }
+
+    /**
      * @template T
      *
      * @param class-string<T>|string $id
