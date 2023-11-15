@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zaphyr\ContainerTests;
+namespace Zaphyr\ContainerTests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zaphyr\ContainerTests;
+namespace Zaphyr\ContainerTests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
@@ -380,6 +380,13 @@ class ContainerTest extends TestCase
         $this->container->call(function ($foo, $bar = 'default') {
             return $foo;
         });
+    }
+
+    public function testCallThrowsExceptionOnReflectionError(): void
+    {
+        $this->expectException(ContainerExceptionInterface::class);
+
+        $this->container->call([Call::class, 'injectReflectionError']);
     }
 
     /* -------------------------------------------------
