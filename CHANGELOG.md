@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file,
 in reverse chronological order by release.
 
+## [v1.1.2](https://github.com/zaphyr-org/container/compare/1.1.1...1.1.2) [2025-02-09]
+
+### New:
+* Added generics to Container::get method and TagGenerator class
+
+### Fixed:
+* Removed PHP 8.4 deprecations
+ 
 ## [v1.1.1](https://github.com/zaphyr-org/container/compare/1.1.0...1.1.1) [2023-11-15]
 
 ### New:
