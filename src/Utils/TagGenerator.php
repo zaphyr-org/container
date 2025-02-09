@@ -9,13 +9,17 @@ use IteratorAggregate;
 use Traversable;
 
 /**
+ * @template TKey of array-key
+ * @template TValue
+ * @implements IteratorAggregate<TKey, TValue>
+ *
  * @author   merloxx <merloxx@zaphyr.org>
  * @internal This class is not part of the public API and may change at any time!
  */
 class TagGenerator implements Countable, IteratorAggregate
 {
     /**
-     * @var callable
+     * @var callable(): Traversable<TKey, TValue>
      */
     protected $generator;
 
@@ -25,8 +29,8 @@ class TagGenerator implements Countable, IteratorAggregate
     protected $count;
 
     /**
-     * @param callable     $generator
-     * @param callable|int $count
+     * @param callable(): Traversable<TKey, TValue> $generator
+     * @param callable|int                          $count
      */
     public function __construct(callable $generator, callable|int $count)
     {
@@ -36,6 +40,8 @@ class TagGenerator implements Countable, IteratorAggregate
 
     /**
      * {@inheritdoc}
+     *
+     * @return Traversable<TKey, TValue>
      */
     public function getIterator(): Traversable
     {

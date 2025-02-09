@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Zaphyr\Container;
 
 use Closure;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Zaphyr\Container\Contracts\AggregateServiceProviderInterface;
 use Zaphyr\Container\Contracts\ContainerInterface;
 use Zaphyr\Container\Contracts\ServiceProviderInterface;
@@ -46,9 +48,9 @@ class Container implements ContainerInterface
     /**
      * @param AggregateServiceProviderInterface|null $providers
      *
-     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      */
-    public function __construct(AggregateServiceProviderInterface|null $providers = null)
+    public function __construct(?AggregateServiceProviderInterface $providers = null)
     {
         $this->providers = $providers ?? new AggregateServiceProvider();
         $this->providers->setContainer($this);
@@ -89,13 +91,15 @@ class Container implements ContainerInterface
      *
      * @param class-string<T>|string $id
      *
-     * {@inheritdoc}
+     * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
+     * @throws ContainerExceptionInterface Error while retrieving the entry.
+     * @return ($id is class-string<T> ? T : mixed)
      */
     public function get(string $id): mixed
     {
         try {
             return $this->resolve($id);
-        } catch (ContainerException $exception) {
+        } catch (ContainerExceptionInterface $exception) {
             if ($this->has($id)) {
                 throw $exception;
             }
@@ -111,7 +115,7 @@ class Container implements ContainerInterface
     /**
      * @param string $alias
      *
-     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      * @return mixed
      */
     protected function resolve(string $alias): mixed
@@ -185,7 +189,7 @@ class Container implements ContainerInterface
     /**
      * @param Closure|string $concrete
      *
-     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      * @return mixed
      */
     protected function build(Closure|string $concrete): mixed
