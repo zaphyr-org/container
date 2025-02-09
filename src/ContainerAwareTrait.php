@@ -16,7 +16,7 @@ trait ContainerAwareTrait
     /**
      * @var ContainerInterface|null
      */
-    protected ContainerInterface|null $container = null;
+    protected ?ContainerInterface $container = null;
 
     /**
      * @param ContainerInterface $container

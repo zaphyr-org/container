@@ -22,14 +22,14 @@ class AggregateServiceProviderTest extends TestCase
      */
     protected AggregateServiceProvider $aggregateServiceProvider;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->containerMock = $this->createMock(ContainerInterface::class);
         $this->aggregateServiceProvider = new AggregateServiceProvider();
         $this->aggregateServiceProvider->setContainer($this->containerMock);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->containerMock, $this->aggregateServiceProvider);
     }

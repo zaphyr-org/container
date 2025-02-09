@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zaphyr\Container\Utils;
 
 use Closure;
+use Psr\Container\ContainerExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
@@ -100,7 +101,7 @@ class Reflector
 
         throw new ContainerException(
             'Could not resolve dependency "' . $parameter . '" in class ' .
-            $parameter->getDeclaringClass()->getName()
+            $parameter->getDeclaringClass()?->getName()
         );
     }
 
@@ -108,7 +109,7 @@ class Reflector
      * @param Container           $container
      * @param ReflectionParameter $parameter
      *
-     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      * @return mixed
      */
     protected static function resolveClass(Container $container, ReflectionParameter $parameter): mixed
@@ -118,7 +119,7 @@ class Reflector
         if ($className === null || $parameter->isVariadic()) {
             throw new ContainerException(
                 'Could not resolve dependency "' . $parameter . '" in class ' .
-                $parameter->getDeclaringClass()->getName()
+                $parameter->getDeclaringClass()?->getName()
             );
         }
 
@@ -130,7 +131,7 @@ class Reflector
      *
      * @return string|null
      */
-    protected static function getParameterClassName(ReflectionParameter $parameter): string|null
+    protected static function getParameterClassName(ReflectionParameter $parameter): ?string
     {
         $type = $parameter->getType();
 
@@ -146,7 +147,7 @@ class Reflector
      * @param array<mixed>|string|Closure $callable
      * @param array<mixed>                $parameters
      *
-     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      * @return mixed
      */
     public static function call(Container $container, array|string|Closure $callable, array $parameters = []): mixed
@@ -189,7 +190,7 @@ class Reflector
      * @param ReflectionFunctionAbstract $method
      * @param array<mixed>               $parameters
      *
-     * @throws ContainerException
+     * @throws ContainerExceptionInterface
      * @return array<mixed>
      */
     protected static function resolveMethodDependencies(
@@ -227,7 +228,7 @@ class Reflector
             } elseif (!$parameter->isOptional()) {
                 throw new ContainerException(
                     'Unable to resolve dependency "' . $parameter . '" in class "' .
-                    $parameter->getDeclaringClass()->getName() . '"'
+                    $parameter->getDeclaringClass()?->getName() . '"'
                 );
             }
         }
