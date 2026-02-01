@@ -302,7 +302,7 @@ class ContainerTest extends TestCase
 
     public function testCallGlobalMethod(): void
     {
-        $inject = $this->container->call('Zaphyr\ContainerTests\TestAssets\callFunction');
+        $inject = $this->container->call('Zaphyr\ContainerTests\Unit\callFunction');
 
         self::assertInstanceOf(Foo::class, $inject[0]);
         self::assertEquals('foo', $inject[1]);
@@ -606,4 +606,9 @@ class ContainerTest extends TestCase
 
         self::assertSame('fooBar', $this->container->get('value'));
     }
+}
+
+function callFunction(Foo $foo, string $value = 'foo'): array
+{
+    return func_get_args();
 }

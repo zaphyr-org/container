@@ -1,8 +1,8 @@
-![License](https://img.shields.io/github/license/zaphyr-org/container?style=for-the-badge)
-![Version](https://img.shields.io/packagist/v/zaphyr-org/container?style=for-the-badge)
-![Downloads](https://img.shields.io/packagist/dt/zaphyr-org/container?style=for-the-badge)
-![Stars](https://img.shields.io/github/stars/zaphyr-org/container?style=for-the-badge)
-![Issues](https://img.shields.io/github/issues/zaphyr-org/container?style=for-the-badge)
+![License](https://img.shields.io/github/license/zaphyr-org/container)
+![Version](https://img.shields.io/packagist/v/zaphyr-org/container)
+![Issues](https://img.shields.io/github/issues/zaphyr-org/container)
+![Tests](https://github.com/zaphyr-org/container/actions/workflows/tests.yml/badge.svg)
+[![Codecov](https://codecov.io/gh/zaphyr-org/container/graph/badge.svg?token=2STP40KC71)](https://codecov.io/gh/zaphyr-org/container)
 
 # Container
 
@@ -10,7 +10,15 @@ Powerful auto wiring dependency injection container including [PSR-11](https://w
 
 ## System Requirements
 
-You need `PHP => 8.1.0` but the latest stable version of PHP is recommended.
+You need `PHP => 8.1` but the latest stable version of PHP is recommended.
+
+This package is continuously tested on the following PHP versions:
+
+- PHP 8.1
+- PHP 8.2
+- PHP 8.3
+- PHP 8.4
+- PHP 8.5
 
 ## Installation
 
